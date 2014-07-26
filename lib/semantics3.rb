@@ -15,10 +15,10 @@ module Semantics3
     @auth={}
 
     class Base
-        def initialize(api_key,api_secret)
+        def initialize(api_key,api_secret, dev = false)
             @api_key = api_key
             @api_secret = api_secret
-
+            @dev = dev
             raise Error.new('API Credentials Missing','You did not supply an api_key. Please sign up at https://semantics3.com/ to obtain your api_key.','api_key') if api_key == ''
             raise Error.new('API Credentials Missing','You did not supply an api_secret. Please sign up at https://semantics3.com/ to obtain your api_secret.','api_secret') if api_secret == ''
 
@@ -30,8 +30,11 @@ module Semantics3
 
         #returns a value
         def _make_request(endpoint, params)
-            url = 'https://api.semantics3.com/v1/' + endpoint + '?q=' + CGI.escape(params)
-
+            if @dev
+                url = 'https://api.semantics3.com/test/v1/' + endpoint + '?q=' + CGI.escape(params)
+            else
+                url = 'https://api.semantics3.com/v1/' + endpoint + '?q=' + CGI.escape(params)
+            end
             #puts "url = #{url}"
             response = @auth.get(url)
 
