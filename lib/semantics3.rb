@@ -13,12 +13,12 @@ require 'json'
 
 module Semantics3
     @auth={}
-
+    attr_reader :options
     class Base
-        def initialize(api_key,api_secret, dev = false)
+        def initialize(api_key,api_secret, options = {})
             @api_key = api_key
             @api_secret = api_secret
-            @dev = dev
+            @options = default_options.merge options
             raise Error.new('API Credentials Missing','You did not supply an api_key. Please sign up at https://semantics3.com/ to obtain your api_key.','api_key') if api_key == ''
             raise Error.new('API Credentials Missing','You did not supply an api_secret. Please sign up at https://semantics3.com/ to obtain your api_secret.','api_secret') if api_secret == ''
 
@@ -30,7 +30,7 @@ module Semantics3
 
         #returns a value
         def _make_request(endpoint, params)
-            if @dev
+            if options[:env] == 'development'
                 url = 'https://api.semantics3.com/test/v1/' + endpoint + '?q=' + CGI.escape(params)
             else
                 url = 'https://api.semantics3.com/v1/' + endpoint + '?q=' + CGI.escape(params)
@@ -40,6 +40,12 @@ module Semantics3
 
             #-- Response.code - TBD
             JSON.parse response.body
+        end
+
+        def default_options
+            {
+                env: 'production'
+            }
         end
 
     end
